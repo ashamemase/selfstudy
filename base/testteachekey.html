@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        .number {
+            width: 30px;
+        }
+
+        .level {
+            width: 30px;
+        }
+
+        .efficent {
+            width: 30px;
+        }
+        .keycheck{
+            display:none;
+        }
+        .keycheck+label:after{
+            content:"　";
+        }
+            .keycheck:checked + label:after {
+                content: "\1F511";
+            }
+    </style>
+</head>
+
+<body>
+    <input type="text" id="schoolid" hidden value="12" />
+    <input type="text" id="teacherid" hidden value="2" />
+    <p>デフォルトのパスワード<input type="text" id="defaultpass" value="pass" /></p>
+    <table id="maintable">
+        <tr id="0">
+            <td>番号</td>
+            <td>本名</td>
+            <td>ID</td>
+            <td>パスワード</td>
+            <td>状態</td>
+            <td>鍵</td>
+            <td>移動</td>
+            <td>削除</td>
+        </tr>
+        <tr id="1">
+            <td><input type="text" id="1_tts" class="number" pattern="^\d+$" maxlength="3" onchange="OnChange(this)" value="1" /></td>
+            <td><input type="text" id="1_name" onchange="OnChange(this)" value="nanashi nanashi" /></td>
+            <td><input type="text" id="1_id" onchange="OnChange(this)" pattern="^=.+$" value="***************" /></td>
+            <td><input type="text" id="1_pass" onchange="OnChange(this)" value="***************" /></td>
+            <td id="1_status" value=""></td>
+            <td><input type="checkbox" id="1_key" class="keycheck" onchange="OnChange(this)" checked /><label for="1_key"></label></td>
+            <td><select id="1_move" onchange="OnChange(this)"></select></td>
+            <td><button id="1_delete" onclick="OnDel('1')">×</button> <input type="text" hidden value="1" onchange="OnChange(this)" /></td>
+        </tr>
+    </table>
+    <button id="add" onclick="OnAdd()">+</button>
+    <script>
+        var idcount;
+        var idschool;
+        var idteacher;
+        var json = {};
+        var options = {"":0,"remove":-2};
+        window.addEventListener('DOMContentLoaded', function () {
+            var table = document.getElementById("maintable");
+            idcount = table.rows.length - 1;
+            idschool = document.getElementById("schoolid").value;
+            idteacher = document.getElementById("teacherid").value;
+            for (let row in table.rows) {
+                if (table.rows[row].id == undefined) continue;
+                var id = table.rows[row].id;
+                if (id == "0") continue;
+                var select = document.getElementById(String(id) + "_move");
+                AddOptions(select);
+            }
+        })
+
+        function OnAdd() {
+            idcount++;
+            var defaultpass = document.getElementById("defaultpass").value;
+            var table = document.getElementById("maintable");
+            var row = table.insertRow(-1);
+            row.id = String(idcount);
+            var col1 = row.insertCell(-1);
+            var col2 = row.insertCell(-1);
+            var col3 = row.insertCell(-1);
+            var col4 = row.insertCell(-1);
+            var col5 = row.insertCell(-1);
+            var col6 = row.insertCell(-1);
+            var col7 = row.insertCell(-1);
+            var col8 = row.insertCell(-1);
+            col1.innerHTML = "<input type='text' id='" + String(idcount) + "_tts' class='number' pattern=' ^\d + $' maxlength='3'  onchange='OnChange(this)' value='"+String(idcount)+"'/>";
+            col2.innerHTML = "<input type='text' id='" + String(idcount) +"_name'  onchange='OnChange(this)'/>";
+            col3.innerHTML = "<input type='text' id='" + String(idcount) + "_id' pattern=' ^=.+ $'/ value='=" + String(idschool) + "_" + String(idteacher) + "_" + String(idcount) + "'  onchange='OnChange(this)'>";
+            col4.innerHTML = "<input type='text' id='" + String(idcount) + "_pass' value='" + defaultpass + "'  onchange='OnChange(this)'/>";
+            col5.innerHTML = "仮登録";
+            col5.id = String(idcount) + "_status";
+            col6.innerHTML = "<input type='checkbox' class='keycheck' id='" + String(idcount) + "_key'  onchange='OnChange(this)'/><label for='" + String(idcount) + "_key'></label>";
+            col7.innerHTML = "<select id='" + String(idcount) + "_move' onchange='OnChange(this)'></select>";
+            col8.innerHTML = "<button id='" + String(idcount) + "_delete' onclick=\"OnDel('" + String(idcount) + "')\">×</button>";
+
+            AddOptions(document.getElementById(String(idcount) + "_move"));
+            json[String(idcount)] = {};
+            json[String(idcount)]["mode"] = "create";
+            json[String(idcount)]["id"] = "=" + String(idschool) + "_" + String(idteacher) + "_" + String(idcount) ;
+            json[String(idcount)]["pass"] = defaultpass;
+        }
+
+        function AddOptions(obj) {
+            for (let key in options) {
+                var option = document.createElement("option");
+                option.text = key;
+                option.value = options[key];
+                obj.appendChild(option);
+            }
+        }
+
+        function OnDel(number) {
+            var table = document.getElementById("maintable");
+            var row = document.getElementById(number);
+            var index = row.rowIndex;
+            table.deleteRow(index);
+            if (number in json) {
+                delete json[number]
+            }
+        }
+        function OnChange(obj) {
+            console.log("call OnChange"+obj.id )
+            var id = obj.id;
+            var words = id.split('_');
+            id = words[0];
+            var name = words[1];
+            if (!(String(id) in json)) {
+                json[String(id)] = {};
+                json[String(id)]["mode"] = "update";
+            }
+            if (name == "key") {
+                json[String(id)][name]=obj.checked
+            } else {
+                json[String(id)][name] = obj.value;
+            }
+
+        }
+    </script>
+
+</body>
+</html>

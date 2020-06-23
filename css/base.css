@@ -1,0 +1,132 @@
+﻿@charset "utf-8";
+
+:root {
+    height: 100vh;
+}
+
+#vocab_body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #b9d08b;
+}
+
+#vocab_topmenu{
+    flex:0 0 auto;
+    flex-basis:7%;
+    font-size:4vh;
+    position:relative;
+}
+
+#time_left{
+    position:absolute;
+    bottom:0;
+}
+
+#vocab_progress{
+    flex:0 0 auto;
+    flex-basis: 3.5%;
+    font-size: 3vh;
+}
+#progress_new{
+    color:blue;
+}
+#progress_retry{
+    color:red;
+}
+#progress_review{
+    color:green;
+}
+
+hr {
+    border-top-color:black;
+    margin-bottom: 40px;
+}
+
+#vocab_main {
+    flex: auto;
+    flex-basis: 70%;
+    font-size: 10vw;
+    background-color: #dcd6d9;
+    text-align:center;
+}
+#answer_container{
+    text-align:inherit;
+ 
+}
+#vocab_button {
+    flex: 0 0 auto;
+    flex-basis: 7%;
+    font-size: 4vh;
+    width: 100vw;
+    max-width: 1000px;
+    display: flex;
+    margin:0 auto 0 auto;
+}
+
+.answer_button{
+    height:100%;
+    font-size:70%;
+    width:25%;
+    flex:auto;
+}
+
+#rank_button_fail{
+    background-color:palevioletred;
+}
+
+#rank_button_difficult {
+    background-color:lightgray;
+}
+
+
+#rank_button_pass {
+    background-color:lime;
+}
+
+
+#rank_button_easy {
+    background-color:aquamarine;
+}
+
+button{
+    display:inline-block;
+}
+
+.menu_button,.undo_button{
+    height:6vh;
+    width:6vh;
+}
+.sound_button{
+    height: 8vh;
+    width: 8vh;
+    margin: 40px;
+}
+
+button>img {
+    height: 100%;
+    width: 100%;
+}
+
+.undo_button{
+    display:inline-block;
+    float:right;
+}
+
+span.accent_top {
+    color: red;
+    border-top: solid red 3px;
+    padding-top: 1px;
+    background-image: url(../image/accent.png);
+    background-repeat: no-repeat;
+    background-position: right top;
+}
+
+span.accent_plain {
+    border-top: solid 3px;
+    padding-top: 1px;
+}
+
+span.kana{
+    font-size:6vw;
+}

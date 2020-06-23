@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="./css/reset.css">
+    <link rel="stylesheet" type="text/css" href="./css/sans-selif.css">
+    <link rel="stylesheet" type="text/css" href="./css/base.css">
+
+</head>
+<body id="vocab_body" class="first-view">
+    <div id="vocab_topmenu">
+        <button type="button" id="menu_button" class="menu_button" value="0"><img src="image/hamburger.png" alt="menu" /></button>
+        <spna id="time_left">残り12分</spna>
+        <button type="button" id="undo_button" class="undo_button" value="0"><img src="image/undo.png" alt="undo" /></button>
+    </div>
+    <div id="vocab_progress">
+        <span id="progress_retry">0</span>
+        <span id="progress_review">0</span>
+        <span id="progress_new">0</span>
+    </div>
+    <div id="vocab_main">
+        <span id="question_text">question</span>
+        <button type="button" id="question_sound_button" class="sound_button" onclick="playsound(this.id)"><image src="image/speaker.png" alt="play" /></button>
+        <br />
+              
+        <div id="answer_container">
+            <hr />
+            <span id="answer_text">answer</span>
+            <button type="button" id="answer_sound_button" class="sound_button"><img src="image/speaker.png" alt="menu" /></button>
+            <br />
+            <span id="answer2_text">answer2</span>
+            <button type="button" id="answer2_sound_button" class="sound_button"><img src="image/speaker.png" alt="menu" /></button>
+        </div>
+    </div>
+    <div id="vocab_button">
+        <button type="button" id="answer_button" class="answer_button" value="0" onclick="onAnswer(this.value)">始める</button>
+        <button type="button" id="rank_button_fail" class="answer_button" value="0" onclick="onRank(this.value)">もう一度</button>
+        <button type="button" id="rank_button_difficult" class="answer_button" value="3" onclick="onRank(this.value)">難しい</button>
+        <button type="button" id="rank_button_pass" class="answer_button" value="4" onclick="onRank(this.value)">普通</button>
+        <button type="button" id="rank_button_easy" class="answer_button" value="5" onclick="onRank(this.value)">簡単</button>
+
+
+    </div>
+
+
+    <script type="text/javascript">
+    var reg = /iPhone|iPod|iPad|Android/i;
+
+    var size = window.innerHeight;
+    var audio_question = new Audio();
+    var audio_answer = new Audio();
+    var audio_answer2 = new Audio();
+    var quizlength;
+    var currentquizcount;
+    var newcount = 0;
+    var reviewcount = 0;
+    var retrycount = 0;
+    const enumquiz = {
+        type: 0, soundfile: 1, kanji: 2, hiragana: 3, vietnamese: 4, form: 5, politeform: 6,
+        politeformsoundfile: 7, quizid: 8, timesolved: 9, rank: 10, newflag: 11
+    };
+
+    //type 1=nhat-viet 2=v-j 3 j listening
+    var quizes = [[3,"780_2_1_female.mp3","買います","か<span class='accent_plain'>い</span><span class='accent_top'>ま</span>す","mua",,,,2,,,0],
+        [2, "1238_2_1_female.mp3", "食べます", "た<span class='accent_plain'>べ</span><span class='accent_top'>ま</span>す", "ăn", , , , 1, , , 0],
+        [1, "1238_2_1_female.mp3", "食べます", "た<span class='accent_plain'>べ</span><span class='accent_top'>ま</span>す", "ăn", , , , 1, , , 0],
+        [1,"780_2_1_female.mp3","買います","か<span class='accent_plain'>い</span><span class='accent_top'>ま</span>す","mua",,,,2,,,0]];
+    reg.test(navigator.userAgent) && document.addEventListener('DOMContentLoaded', () => { document.querySelectorAll(':root')[0].style.height = `${size}`+'px' })
+
+    window.addEventListener('DOMContentLoaded', function () {
+        quizlength = quizes.length;
+        currentquizcount = 0;
+        document.getElementById("rank_button_fail").style.display = "none";
+        document.getElementById("rank_button_difficult").style.display = "none";
+        document.getElementById("rank_button_pass").style.display = "none";
+        document.getElementById("rank_button_easy").style.display = "none";
+        document.getElementById("vocab_main").style.display = "none";
+        for (let i = 0; i < quizlength; i++) {
+            if (quizes[i][enumquiz.newflag] == 0) newcount++;
+            else reviewcount++;
+        }
+        showprogress();
+    });
+
+    function showprogress() {
+        document.getElementById("progress_new").innerHTML = newcount;
+        document.getElementById("progress_new").style.textDecoration = "none";
+        document.getElementById("progress_review").innerHTML = reviewcount;
+        document.getElementById("progress_review").style.textDecoration = "none";
+        document.getElementById("progress_retry").innerHTML = retrycount;
+        document.getElementById("progress_retry").style.textDecoration = "none";
+    }
+
+    function createquiz() {
+        if (quizlength === currentquizcount) {
+            //終了処理へ
+            return;    
+        }
+        showquiz();
+
+    };
+
+    function showquiz() {
+        var quiz = quizes[currentquizcount];
+        document.getElementById("answer_container").style.display = "none";
+        switch (quiz[enumquiz.type]) {
+            case 1://simple j-v
+                document.getElementById("question_text").innerHTML = `${quiz[enumquiz.kanji]} <br /><span class="kana">(${quiz[enumquiz.hiragana]})</span>`;
+                document.getElementById("question_sound_button").style.display = "inline-block";
+                audio_question.src = "./sound/" + quiz[enumquiz.soundfile];
+                document.getElementById("answer_text").innerHTML = quiz[enumquiz.vietnamese];
+                document.getElementById("answer_sound_button").style.display = "none";
+                document.getElementById("answer2_text").innerHTML = "";
+                document.getElementById("answer2_sound_button").style.display = "none";
+                playsound("question_sound_button");
+                break;
+            case 2://simple v-n
+                document.getElementById("question_text").innerHTML = quiz[enumquiz.vietnamese];
+                document.getElementById("question_sound_button").style.display = "none";
+                document.getElementById("answer_text").innerHTML = `${quiz[enumquiz.kanji]} <br /><span class="kana">(${quiz[enumquiz.hiragana]})</span>`;
+                audio_answer.src = "./sound/" + quiz[enumquiz.soundfile];
+                document.getElementById("answer_sound_button").style.display = "inline-block";
+                document.getElementById("answer2_text").style.display = "none";
+                document.getElementById("answer2_sound_button").style.display = "none";
+                break;
+            case 3://listening j-v
+                document.getElementById("question_text").innerHTML ="" ;
+                document.getElementById("question_sound_button").style.display = "inline-block";
+                audio_question.src = "./sound/" + quiz[enumquiz.soundfile];
+                document.getElementById("answer_text").innerHTML = `${quiz[enumquiz.kanji]} <br /><span class="kana">(${quiz[enumquiz.hiragana]})</span>`;
+                audio_answer.src= "./sound/" + quiz[enumquiz.soundfile];
+                document.getElementById("answer_sound_button").style.display = "inline-block";
+                document.getElementById("answer2_text").innerHTML = quiz[enumquiz.vietnamese];
+                document.getElementById("answer2_sound_button").style.display = "none";
+                playsound("question_sound_button");
+                break;
+
+            default:
+                break;
+        }
+        document.getElementById("rank_button_fail").style.display = "none";
+        document.getElementById("rank_button_difficult").style.display = "none";
+        document.getElementById("rank_button_pass").style.display = "none";
+        document.getElementById("rank_button_easy").style.display = "none";
+        document.getElementById("answer_button").style.display = "block";
+
+        switch (quiz[enumquiz.newflag]) {
+            case 0:
+                document.getElementById("progress_new").style.textDecoration = "underline";
+                break;
+            case 1:
+                document.getElementById("progress_review").style.textDecoration = "underline";
+                break;
+            case 2:
+                document.getElementById("progress_retry").style.textDecoration = "underline";
+                break;
+            default:
+                break;
+        }
+    }
+
+    function playsound(obj){
+        switch (obj) {
+            case "question_sound_button":
+                audio_question.pause();
+                audio_question.currentTime = 0;
+                audio_question.play();
+                break;
+            case "answer_sound_button":
+                audio_answer.pause();
+                audio_answer.currentTime = 0;
+                audio_answer.play();
+                break;
+
+        }
+    }
+
+    function onAnswer(value) {
+        if (value == 0) {
+            document.getElementById("vocab_main").style.display = "block";
+            document.getElementById("answer_button").innerHTML = "解答を表示";
+            document.getElementById("answer_button").value = "1";
+            createquiz();
+            return;
+        }
+        document.getElementById("answer_container").style.display = "block";
+        document.getElementById("rank_button_fail").style.display = "block";
+        document.getElementById("rank_button_difficult").style.display = "block";
+        if(quizes[currentquizcount][enumquiz.newflag] != 0) document.getElementById("rank_button_pass").style.display = "block";
+        document.getElementById("rank_button_easy").style.display = "block";
+        document.getElementById("answer_button").style.display = "none";
+        if (document.getElementById("answer_sound_button").style.display == "inline-block") playsound("answer_sound_button");
+
+    }
+
+    function onRank(value) {
+        let quizold = quizes[currentquizcount];
+        let quiz = Array.from(quizes[currentquizcount]);
+        let newflag_old = quiz[enumquiz.newflag];
+        if (value == 0) {//agein
+            quiz[enumquiz.newflag] = 2;
+            quizes.splice(insertpos(), 0, quiz);
+            retrycount++;
+            quizlength++;
+        } else {
+            if (quiz[enumquiz.newflag] == 0 && value == 3) {
+                quiz[enumquiz.newflag] = 1;
+                quizes.splice(insertpos(), 0, quiz);
+                reviewcount++;
+                quizlength++;
+            }
+        }
+        let d = new Date();
+        quizold[enumquiz.timesolved] = d.getTime();
+        quizold[enumquiz.rank] = value;
+        switch (newflag_old) {
+            case 0:
+                newcount--;
+                break;
+            case 1:
+                reviewcount--;
+                break;
+            case 2:
+                retrycount--;
+                break;
+            default:
+                break;
+        }
+        currentquizcount++;
+        showprogress();
+        createquiz();
+    }
+
+    function insertpos() {
+        return currentquizcount + 1 + Math.floor((Math.random()+1) * ((quizlength) - currentquizcount) / 2);
+    }
+    </script>
+</body>
+</html>

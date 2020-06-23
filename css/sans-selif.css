@@ -1,0 +1,30 @@
+@charset "utf-8";
+body{
+    font-family:"ヒラギノ角ゴ Pro W3","ヒラギノ角ゴPro W3", "Hiragino Kaku Gothic Pro",Osaka, "ＭＳ Ｐゴシック", "メイリオ", Meiryo, sans-serif;
+}
+body#layout_using .pages .ds p.nml,
+.pages.usage .ds p.nml,
+.pages.usage_search .ds p.nml,
+.pages.usage_kouzokugo .ds p.nml,
+.pages.usage_ninnitext .ds p.nml,
+.pages.usage_suzukikun .ds p.nml{
+    line-height:1.3em;
+}
+.ds p.nml,
+.ds_t p.nml,
+.ds p.nml_allindent,
+.ds_t p.nml_allindent{
+    line-height:1.3em;
+}
+.pages ol{
+    line-height:1.3em;    
+}
+.pages ol > li{
+    line-height:1.3em;
+}
+.usage_functions_dl > dd{
+    line-height:1.3em;
+}
+.usage_option_dl > dd{
+    line-height:1.3em;
+}

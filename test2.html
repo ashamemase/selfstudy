@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="./css/reset.css">
+    <link rel="stylesheet" type="text/css" href="./css/sans-selif.css">
+    <link rel="stylesheet" type="text/css" href="./css/base.css">
+
+</head>
+<body>
+	<script type="text/javascript">
+		var json={"aho":"1","baka":"2"};
+		document.cookie = "data = "+ encodeURIComponent(JSON.stringify(json));
+		window.onbeforeunload = function(e){
+		}
+		var cookie= decodeURIComponent(document.cookie);
+		var code=((document.cookie + ';' ).match('data=([^\S;]*)')||[])[1];
+		var json2 = JSON.parse(decodeURIComponent(((document.cookie + ';' ).match('data=([^\S;]*)')||[])[1]));
+	</script>
+</body>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,minimum-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="./css/loader.css">
+    <style>
+        
+        @media screen and (max-width: 480px){
+            table{
+                width: 100%;
+            }
+            table th, table td{
+                display: block;
+                text-align: left;
+                width: 100%;
+            }
+            input{
+                size: 80;
+            }
+            input[type="text"], textarea{
+                font-size: 16px;
+            }
+        }
+    </style>
+
+</head>
+<body>
+    <body>
+        <div class="loaderbody"><div class="loader"></div></div>
+        <h1>ログイン画面</h1>
+        <form id="loginForm" name="loginForm" action="" method="POST" onSubmit="loadloader()">
+            <fieldset>
+                <legend>ログインフォーム</legend>
+                <table>
+                    <tr>
+                        <th><label for="userid">ユーザーID</label></th>
+                        <td><input type="text" id="userid" name="userid" placeholder="ユーザーIDを入力" value="" autocapitalize="off"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="password">パスワード</label></th>
+                        <td><input type="password" id="password" name="password" value="" placeholder="パスワードを入力"></td>
+                    </tr>
+                 </table>
+                 <button id="login" name="login" >ログイン</button>
+             </fieldset>
+        </form>
+        <br>
+        <form action="signup.php">
+            <fieldset>          
+                <legend>新規登録フォーム</legend>
+                <input type="submit" value="新規登録">
+            </fieldset>
+        </form>
+    </body>
+    <script type="text/javascript">
+        function loadloader(){
+
+        }
+    </script>
+</body>

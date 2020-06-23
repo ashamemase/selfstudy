@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <table id="maintable">
+        <tr id="0">
+            <td>ID</td>
+            <td>学校名</td>
+            <td>状態</td>
+            <td>削除</td>
+        </tr>
+        <tr id="1">
+            <td>1</td>
+            <td><input type="text" id="1_name" onchange="OnChange(this)" value="nanashi school" /></td>
+            <td> <select id="1_status" onchange="OnChange(this)" value="n"></select></td>
+            <td><button id="1_delete" onclick="OnDel('1')">×</button> <input type="text" hidden value="1" onchange="OnChange(this)" /></td>
+        </tr>
+    </table>
+    <button id="add" onclick="OnAdd()">+</button>
+
+    <script>
+        var idcount;
+        var json = {};
+        var statuses = { "通常": "n", "制限": "r", "禁止": "b", "削除": "d" };
+
+        window.addEventListener('DOMContentLoaded', function () {
+            var table = document.getElementById("maintable");
+            idcount = table.rows.length - 1;
+
+            for (let row in table.rows) {
+                if (table.rows[row].id == undefined) continue;
+                var id = table.rows[row].id;
+                if (id == "0") continue;
+                var select = document.getElementById(String(id) + "_status");
+                AddSelect(select);
+            }
+        })
+
+        function OnAdd() {
+            idcount++;
+            var table = document.getElementById("maintable");
+            var row = table.insertRow(-1);
+            row.id = String(idcount);
+            var col1 = row.insertCell(-1);
+            var col2 = row.insertCell(-1);
+            var col3 = row.insertCell(-1);
+            var col4 = row.insertCell(-1);
+
+            col2.innerHTML = "<input type='text' id='" + String(idcount) + "_name'  onchange='OnChange(this)'/>";
+            col3.innerHTML = "<select id='" + String(idcount) + "_status' onchange='OnChange(this)' value='n'></select>";
+            col4.innerHTML = "<button id='" + String(idcount) + "_delete' onclick=\"OnDel('" + String(idcount) + "')\">×</button>";
+
+            AddSelect(document.getElementById(String(idcount) + "_status"));
+            json[String(idcount)] = {};
+            json[String(idcount)]["mode"] = "create";
+            json[String(idcount)]["status"] = "n";
+        }
+
+        function AddSelect(obj) {
+            for (let key in statuses) {
+                var option = document.createElement("option");
+                option.text = key;
+                option.value = statuses[key];
+                obj.appendChild(option);
+            }
+        }
+
+        function OnDel(number) {
+            var table = document.getElementById("maintable");
+            var row = document.getElementById(number);
+            var index = row.rowIndex;
+            table.deleteRow(index);
+            if (number in json) {
+                delete json[number]
+            }
+        }
+        function OnChange(obj) {
+            console.log("call OnChange" + obj.id)
+            var id = obj.id;
+            var words = id.split('_');
+            id = words[0];
+            var name = words[1];
+            if (!(String(id) in json)) {
+                json[String(id)] = {};
+                json[String(id)]["mode"] = "update";
+            }
+
+            json[String(id)][name] = obj.value;
+        }
+    </script>
+</body>
+</html>
