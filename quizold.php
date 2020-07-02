@@ -60,7 +60,7 @@ try{
 //
 // 処理部
 //
-$quizdate;//問題データ
+$quizdata;//問題データ
 $reload=false;//リロードフラグ
 $hascookie=true;//セーブデータ存在フラグ
 //クッキーの確認
@@ -75,7 +75,7 @@ if(isset($_COOKIE["quiz_date"])){//クッキーが残っている
     }
 }else{//クッキーが残っていない
     //今日の学習分のチェック
-    $userdate=getQuizData();
+    $quizdata=getQuizData();
     if(count($userdate)==0){
         //終了処理
     }
@@ -97,7 +97,7 @@ function getQuizData(){
         while($row2 = $stmt->fetch(PDO::FETCH_ASSOC)){
             //関連するカードの除外
             $flag=false;
-            foreach($quizdata as $row){
+            foreach($ret as $row){
                 if($row2["linked_id"]==$row["linked_id"]){
                     $flag=true;
                     break;
@@ -106,9 +106,9 @@ function getQuizData(){
             if(!$flag){
             $row2["newflag"]=true;
                 $ret[]=$row2;
-                $addcount--;
+                $userdate["addcount"]--;
             }
-            if($addcount<=0) break;				
+            if($userdate["addcount"]<=0) break;				
         }
     }
     return $ret;

@@ -1,0 +1,21 @@
+@media screen and (max-width: 480px) {
+    table {
+        width: 100%;
+    }
+
+    table th,
+    table td {
+        display: block;
+        text-align: left;
+        width: 100%;
+    }
+
+    input {
+        size: 80;
+    }
+
+    input[type="text"],
+    textarea {
+        font-size: 16px;
+    }
+}
