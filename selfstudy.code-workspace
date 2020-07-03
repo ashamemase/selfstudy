@@ -4,21 +4,5 @@
 			"path": "."
 		}
 	],
-	"settings": {
-		"sqltools.connections": [
-			{
-				"askForPassword": true,
-				"database": "selfstudy",
-				"driver": "MySQL",
-				"mysqlOptions": {
-					"authProtocol": "default"
-				},
-				"name": "studyjapanese",
-				"port": 3306,
-				"previewLimit": 50,
-				"server": "localhost",
-				"username": "ashame"
-			}
-		]
-	}
+	"settings": {}
 }

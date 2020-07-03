@@ -1,0 +1,518 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>時間の練習</title>
+    <style>
+        #button_line {
+            text-align: center;
+        }
+
+        #timetext {
+            font-size: 30vw;
+            text-align: center;
+        }
+
+        button {
+            height: 10vh;
+            font-size: 8vh;
+        }
+
+        body {
+            text-align: center;
+            display: flex;
+            width:100vw;
+            height:90vh;
+            flex-direction: column;
+        }
+
+        #main_container {
+            display: block;
+            flex: 1 0 70%;
+            font-family:Century, serif;
+        }
+
+        #setting_container {
+            display: none;
+            flex: 0 1 10%;
+        }
+            #setting_container * {
+                width: 50vh;
+                height: 8vh;
+                font-size: 4vh;
+            }
+        #control_container {
+            flex: 0 1 10%;
+        }
+
+        #button_setting {
+            display: block;
+            margin: 0 0 0 auto;
+        }
+        #myCanvas {
+            background-color:white;
+        }
+        #digital_clock{
+            display:block;
+        }
+        #analog_clock{
+            position:absolute;
+            width:100%;
+            display:none;
+        }
+        #analog_clockbefore {
+            content: "";
+            display: block;
+            padding-top: 100%; /* 高さを幅のXX%に固定 */
+        }
+
+    </style>
+</head>
+<body>
+    <div id="menu_container">
+        <button id="button_setting" onclick="OnButtonSetting()">&#x2699</button>
+    </div>
+    <div id="main_container">
+        <div id="digital_clock">
+            <span id="timetext"></span>
+        </div>
+        <div id="analog_clock">
+            <div style="position: absolute;top: 0;left: 0; bottom: 0;right: 0;">
+                <canvas id="myCanvas"  height="300" width="300">
+                </canvas>
+            </div>
+            
+        </div>
+    </div>
+    <div id="control_container">
+        <div id="button_line">
+            <button id="buttou_renew" onclick="OnButtonRenew()">&#x21AA</button>
+            <button id="button_speach" onclick="OnSpeach()">&#x1F508</button>
+        </div>
+    </div>
+    <div id="setting_container">
+        <input type="checkbox" id="analogchecked" onchange="OncheckChange()"/><span> アナログ表示にする</span><br />
+        <input type="checkbox" id="randomchecked" onchange="OncheckChange()"/><span> ランダムに表示する</span><br />
+        <input type="checkbox" id="ampmchecked" onchange="OncheckChange()"/><span>午前・午後も表示する</span><br />
+        <input type="checkbox" id="twentyfourchecked" onchange="OncheckChange()"/><span>24時間表示にする</span><br />
+        <input type="radio" name="quiztype" value="0" checked  onchange="OncheckChange()"/><span>時間だけ変える</span><br />
+        <input type="radio" name="quiztype" value="1"  onchange="OncheckChange()"/><span>10分刻みで変える</span><br />
+        <input type="radio" name="quiztype" value="2"  onchange="OncheckChange()"/><span>5分刻みで変える</span><br />
+        <input type="radio" name="quiztype" value="3"  onchange="OncheckChange()"/><span>1分刻みで変える</span><br />
+        <hr />
+        <textarea id="text">こんにちは</textarea><br />
+        <select id="voice-select"></select><br />
+        <br />
+        <input type="range" min="50" max="150" value="100" id="Pitch" onchange="PitchValue.value=value/100">
+        <br />
+        <span>声の高さ　</span><output id="PitchValue">1</output><br />
+        <input type="range" min="30" max="300" value="100" id="Pitch" onchange="SpeedValue.value=value/100">
+        <br />
+        <span>声の速さ　</span><output id="SpeedValue">1</output><br />
+        <input type="range" min="0" max="100" value="100" id="Pitch" onchange="VolumeValue.value=value/100">
+        <br />
+        <span>声の大きさ </span><output id="VolumeValue">1</output><br />
+        <button id="speak-btn">&#x1F508</button>
+    </div>
+    <script>
+        //////////////////////////////////////////////////////////////////////
+        //
+        //          voice setting section
+        const text = document.querySelector('#text')
+        const voiceSelect = document.querySelector('#voice-select')
+        const speakBtn = document.querySelector('#speak-btn')
+
+
+        // selectタグの中身を声の名前が入ったoptionタグで埋める
+        function appendVoices() {
+            // ①　使える声の配列を取得
+            // 配列の中身は SpeechSynthesisVoice オブジェクト
+            const voices = speechSynthesis.getVoices()
+            voiceSelect.innerHTML = ''
+            voices.forEach(voice => { //　アロー関数 (ES6)
+                // 日本語と英語以外の声は選択肢に追加しない。
+                if (!voice.lang.match('ja|en-US')) return
+                const option = document.createElement('option')
+                option.value = voice.name
+                option.text = `${voice.name} (${voice.lang})` //　テンプレートリテラル (ES6)
+                option.setAttribute('selected', voice.default)
+                voiceSelect.appendChild(option)
+            });
+        }
+
+        appendVoices()
+
+        // ② 使える声が追加されたときに着火するイベントハンドラ。
+        // Chrome は非同期に(一個ずつ)声を読み込むため必要。
+        speechSynthesis.onvoiceschanged = e => {
+            appendVoices()
+        }
+
+        speakBtn.addEventListener('click', function () {
+            // 発言を作成
+            const uttr = new SpeechSynthesisUtterance(text.value)
+            // ③ 選択された声を指定
+            uttr.voice = speechSynthesis
+                .getVoices()
+                .filter(voice => voice.name === voiceSelect.value)[0]
+            uttr.rate = document.getElementById("SpeedValue").value;
+            uttr.pitch = document.getElementById("PitchValue").value;
+            uttr.volume = document.getElementById("VolumeValue").value;
+            // 発言を再生 (発言キュー発言に追加)
+            speechSynthesis.speak(uttr)
+        })
+
+    /////////////////////////////////////////////////////////////////////
+    //
+    //          timetraining section
+
+
+        var hour=0;
+        var minite = 0;
+        var bAnalog = false;
+        var bRandom = false;
+        var bAmpm = false;
+        var b24 = false;
+        var quiztype = 0;
+        var analogclock;
+        window.addEventListener('DOMContentLoaded', function () {
+
+            showTime();
+        })
+
+
+        window.onload = function () {
+            cw = document.getElementById("main_container").getBoundingClientRect().width;
+            ch = document.getElementById("main_container").getBoundingClientRect().height;
+            cw = ch > cw ? cw : ch;
+            document.getElementById("myCanvas").height = cw;
+            document.getElementById("myCanvas").width = cw;// リサイズ時に行う処理 
+            analogclock = new clock("myCanvas");
+            this.analogclock.datetime = new Date(2000, 1, 1, hour, minite, 0);
+            this.analogclock.draw();
+
+            
+        }
+        window.addEventListener('keydown', function (event) {
+            if (event.defaultPrevented) {
+                return; // Do nothing if the event was already processed
+            }
+            if (this.document.getElementById("main_container").style.display == "none") return;
+            this.console.log(event.keyCode);
+            switch (event.keyCode) {
+                case 13,90:
+                    OnButtonRenew();
+                    break;
+                case 32,88:
+                    OnSpeach();
+                    break;
+                default:
+                    break;
+            }
+            event.preventDefault();
+        })
+
+        function showTime() {
+            var text = "";
+            if (bAnalog) {
+                this.analogclock.datetime = new Date(2000, 1, 1, hour, minite, 0);
+                this.analogclock.draw();
+                return;
+            }
+            if (bAmpm) {
+                if (hour >= 12) {
+                    text += "AM";
+                } else {
+                    text + ~"PM";
+                }
+            }
+            if (b24) {
+                text += ("00"+hour).slice(-2) + ":";
+            } else {
+                if (hour >= 13) {
+                    text += ("00" + (hour % 12)).slice(-2) + ":";
+                } else {
+                    text += ("00" + hour).slice(-2) + ":";
+                }
+
+            }
+            text += ("00"+minite).slice(-2);
+            document.getElementById("timetext").innerHTML = text;
+        }
+
+
+
+        function selecttime() {
+            if (bRandom) {
+                hour = Math.floor(Math.random() * 24);
+                minite = Math.floor(Math.random() * 60);  
+                switch (quiztype) {
+	                case 0:
+	                    minite = 0;
+	                    break;
+	                case 1:
+	                    minite = minite % 6*10;
+	                    break;
+	                case 2:
+	                    minite = minite % 12*5;
+	                    break;
+	                default:
+	                    break;
+	            }
+            } else {
+                switch (quiztype) {
+                    case 0:
+                        hour++;
+                        break;
+                    case 1:
+                        minite += 10;
+                        break;
+                    case 2:
+                        minite += 5;
+                        break;
+                    case 3:
+                        minite += 1;
+                    default:
+                        break;
+                }
+                if (minite >= 60) {
+                    minite %= 60;
+                    hour++;
+                }
+                if (b24) {
+                    hour %= 24;
+                } else {
+                    if (hour >= 13) hour -= 13;
+                }
+            }
+
+
+            showTime();
+        }
+
+        function OnButtonRenew() {
+            selecttime();
+            console.debug("!");
+
+            showTime();
+
+        }
+
+        function OnSpeach() {
+            var text = "";
+            if (bAmpm) {
+                if (hour >= 12) {
+                    text += "午前";
+                } else {
+                    text + ~"午後";
+                }
+            }
+            if (b24) {
+                text += hour + "時";
+            } else {
+                if (hour >= 13) {
+                    text += hour % 12 + "時";
+                } else {
+                    text += hour + "時";
+                }
+
+            }
+            if (minite != 0) {
+                text += minite + "分";
+            }
+
+            var msg = new SpeechSynthesisUtterance(text);
+            msg.voice = speechSynthesis
+                .getVoices()
+                .filter(voice => voice.name === voiceSelect.value)[0]
+            msg.rate = document.getElementById("SpeedValue").value;
+            msg.pitch = document.getElementById("PitchValue").value;
+            msg.volume = document.getElementById("VolumeValue").value;
+            window.speechSynthesis.speak(msg);
+        }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    //              setting section
+        function OnButtonSetting() {
+            if (document.getElementById("button_setting").innerText == "\u2699") {
+                document.getElementById("button_setting").innerText = "\u21B2";
+                document.getElementById("setting_container").style.display = "block";
+                document.getElementById("main_container").style.display = "none";
+                document.getElementById("control_container").style.display = "none";
+
+            } else {
+                document.getElementById("button_setting").innerText = "\u2699"
+                document.getElementById("setting_container").style.display = "none";
+                if (bAnalog) {
+                    document.getElementById("digital_clock").style.display = "none";
+                    document.getElementById("analog_clock").style.display = "block";
+                    analogclock.draw();
+                } else {
+                    document.getElementById("digital_clock").style.display = "block";
+                    document.getElementById("analog_clock").style.display = "none";
+                }
+                document.getElementById("main_container").style.display = "block";
+                document.getElementById("control_container").style.display = "block";
+
+            }
+        }
+
+        function OncheckChange(){
+            bAnalog = document.getElementById("analogchecked").checked;
+            bRandom = document.getElementById("randomchecked").checked;
+            bAmpm = document.getElementById("ampmchecked").checked;
+            b24 = document.getElementById("twentyfourchecked").checked;
+            var elements = document.getElementsByName("quiztype");
+            // 選択状態の値を取得
+            for (var i = 0; i < elements.length; i++) {
+                if (elements[i].checked) {
+                     quiztype = parseInt( elements[i].value);
+                    break;
+                }
+            }
+            if (bAnalog) {
+                document.getElementById("ampmchecked").setAttribute('disabled', true);
+                document.getElementById("ampmchecked").checked=false;
+                document.getElementById("twentyfourchecked").setAttribute('disabled', true);
+                document.getElementById("twentyfourchecked").checked = false;
+                bAmpm = false; b24 = false;
+            } else {
+                document.getElementById("ampmchecked").disabled=false;
+                document.getElementById("twentyfourchecked").disabled = false;
+            }
+
+            if (bAmpm) {
+                document.getElementById("twentyfourchecked").setAttribute('disabled', true);
+                document.getElementById("twentyfourchecked").checked = false;
+                b24 = false;
+            } else {
+                if(!bAnalog) document.getElementById("twentyfourchecked").disabled = false;
+            }
+        }
+//////////////////////////////////////////////////////////////////////////////
+//
+//  analog clock
+        function clock(id) {
+            this.id = id;
+            this.init = function () {
+                this.timerId = null;
+                this.canvas = document.getElementById(this.id);
+                this.ctx = this.canvas.getContext('2d');
+                this.width = this.canvas.width;
+                this.height = this.canvas.height;
+
+                var x = this.ctx;
+                x.translate(this.width / 2, this.height / 2);
+                x.scale(this.width / 200, this.height / 200);
+                x.rotate(-Math.PI / 2);
+                x.strokeStyle = "black";
+                x.fillStyle = "white";
+                x.lineCap = "butt";
+            }
+
+            this.memoriM = function () {
+                var x = this.ctx;
+                x.save();
+                x.lineWidth = 2;
+                for (var i = 0; i < 60; i++) {
+                    x.beginPath();
+                    x.rotate(Math.PI / 30);
+                    x.moveTo(90, 0);
+                    x.lineTo(100, 0);
+                    x.stroke();
+                }
+                x.restore();
+            }
+            this.memoriH = function () {
+                var x = this.ctx;
+                x.save();
+                x.lineWidth = 8;
+                for (var i = 0; i < 12; i++) {
+                    x.beginPath();
+                    x.rotate(Math.PI / 6);
+                    x.moveTo(80, 0);
+                    x.lineTo(100, 0);
+                    x.stroke();
+                }
+                x.restore();
+            }
+            this.h = function () {
+                var x = this.ctx;
+                x.save();
+                x.rotate(Math.PI / 6 * (this.datetime.getHours() + this.datetime.getMinutes() / 60));
+                x.lineWidth = 8;
+                x.beginPath();
+                x.moveTo(-5, 0);
+                x.lineTo(60, 0);
+                x.stroke();
+                x.restore();
+            }
+            this.m = function () {
+                var x = this.ctx;
+                x.save();
+                x.rotate(Math.PI / 30 * (this.datetime.getMinutes() + this.datetime.getSeconds() / 60));
+                x.lineWidth = 4;
+                x.beginPath();
+                x.moveTo(-5, 0);
+                x.lineTo(80, 0);
+                x.stroke();
+                x.restore();
+            }
+            this.s = function () {
+                var x = this.ctx;
+                x.save();
+                x.rotate(Math.PI / 30 * this.datetime.getSeconds());
+                x.strokeStyle = "#cc0000";
+                x.lineWidth = 2;
+                x.beginPath();
+                x.moveTo(-10, 0);
+                x.lineTo(80, 0);
+                x.stroke();
+                x.restore();
+            }
+            this.draw = function () {
+                if (!this.canvas) {
+                    this.init();
+                }
+                var x = this.ctx;
+                x.clearRect(-100, -100, 200, 200);
+  //              this.datetime = new date(2000, 1, 1, h, m, 0);
+                this.memoriM();
+                this.memoriH();
+                this.h();
+                this.m();
+            }
+            this.ticktack = function () {
+                if (!this.canvas) {
+                    this.init();
+                }
+                var x = this.ctx;
+                this.datetime = new Date();
+                var x = this.ctx;
+                x.clearRect(-100, -100, 200, 200);
+                this.memoriM();
+                this.memoriH();
+                this.h();
+                this.m();
+                this.s();
+            }
+            this.start = function () {
+                if (!this.timerId) {
+                    var _clock = this;
+                    _clock.ticktack();
+                    this.timerId = setInterval(function () { _clock.ticktack(); }, 1000);
+                }
+            }
+            this.stop = function () {
+                if (this.timerId) {
+                    clearInterval(this.timerId);
+                    this.timerId = null;
+                }
+            }
+        }
+
+    </script>
+
+</body>
+</html>
