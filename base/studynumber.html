@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
     <title>数字の練習</title>
     <style>
         #button_line {
@@ -38,9 +39,9 @@
         }
 
             #setting_container * {
-                width: 50vh;
+                width: 50wh;
                 height: 8vh;
-                font-size: 4vh;
+                font-size: 4wh;
             }
 
         #control_container {
@@ -62,8 +63,6 @@
     </div>
     <div id="main_container">
         <span id="numbertext"></span>
-
-
     </div>
     <div id="control_container">
         <div id="button_line">
@@ -72,72 +71,22 @@
         </div>
     </div>
     <div id="setting_container">
-        <input type="checkbox" id="randomchecked" onchange="OncheckChange()" /><span> ランダムに表示する</span><br />
-        <input type="text" id="number_text" value="??" maxlength="12"  onchange="OncheckChange()" ><span>表示する桁数</span></br>
-        <br /><span>例えば[0-999]なら"???"、[100-9900]なら"??00"</span><br />
-        <span>    [20000-29990]なら"2???0"と入力</span>
-        <hr />
-        <textarea id="text">こんにちは</textarea><br />
-        <select id="voice-select"></select><br />
-        <br />
-        <input type="range" min="50" max="150" value="100" id="Pitch" onchange="PitchValue.value=value/100">
-        <br />
-        <span>声の高さ　</span><output id="PitchValue">1</output><br />
-        <input type="range" min="30" max="300" value="100" id="Pitch" onchange="SpeedValue.value=value/100">
-        <br />
-        <span>声の速さ　</span><output id="SpeedValue">1</output><br />
-        <input type="range" min="0" max="100" value="100" id="Pitch" onchange="VolumeValue.value=value/100">
-        <br />
-        <span>声の大きさ </span><output id="VolumeValue">1</output><br />
-        <button id="speak-btn">&#x1F508</button>
+        <table>
+            <tr>
+                <td><input type="checkbox" id="randomchecked" onchange="OncheckChange()" /></td>
+                <td>ランダムに表示する</td>
+            </tr>
+            <tr>
+                <td><input type="text" id="number_text" value="??" maxlength="12"  onchange="OncheckChange()" ></td>
+                <td>表示する桁数</td>
+            </tr>
+        </table>
+        <span>例えば[0-999]なら"???"</span><br/><span>b[100-9900]なら"??00"</span><br />
+        <span>[20000-29990]なら"2???0"と入力</span>
+
     </div>
+    <script src="../js/tts.js"></script>
     <script>
-        //////////////////////////////////////////////////////////////////////
-        //
-        //          voice setting section
-        const text = document.querySelector('#text')
-        const voiceSelect = document.querySelector('#voice-select')
-        const speakBtn = document.querySelector('#speak-btn')
-
-
-        // selectタグの中身を声の名前が入ったoptionタグで埋める
-        function appendVoices() {
-            // ①　使える声の配列を取得
-            // 配列の中身は SpeechSynthesisVoice オブジェクト
-            const voices = speechSynthesis.getVoices()
-            voiceSelect.innerHTML = ''
-            voices.forEach(voice => { //　アロー関数 (ES6)
-                // 日本語と英語以外の声は選択肢に追加しない。
-                if (!voice.lang.match('ja|en-US')) return
-                const option = document.createElement('option')
-                option.value = voice.name
-                option.text = `${voice.name} (${voice.lang})` //　テンプレートリテラル (ES6)
-                option.setAttribute('selected', voice.default)
-                voiceSelect.appendChild(option)
-            });
-        }
-
-        appendVoices()
-
-        // ② 使える声が追加されたときに着火するイベントハンドラ。
-        // Chrome は非同期に(一個ずつ)声を読み込むため必要。
-        speechSynthesis.onvoiceschanged = e => {
-            appendVoices()
-        }
-
-        speakBtn.addEventListener('click', function () {
-            // 発言を作成
-            const uttr = new SpeechSynthesisUtterance(text.value)
-            // ③ 選択された声を指定
-            uttr.voice = speechSynthesis
-                .getVoices()
-                .filter(voice => voice.name === voiceSelect.value)[0]
-            uttr.rate = document.getElementById("SpeedValue").value;
-            uttr.pitch = document.getElementById("PitchValue").value;
-            uttr.volume = document.getElementById("VolumeValue").value;
-            // 発言を再生 (発言キュー発言に追加)
-            speechSynthesis.speak(uttr)
-        })
 
         /////////////////////////////////////////////////////////////////////
         //
@@ -146,23 +95,17 @@
         var number = 0
         var bRandom = false
         var numberText="??"
-
-        window.addEventListener('DOMContentLoaded', function () {
-
-
-        })
-
+        var tts
 
         window.onload = function () {
-
-
+            tts=new TTS();
         }
+
         window.addEventListener('keydown', function (event) {
             if (event.defaultPrevented) {
                 return; // Do nothing if the event was already processed
             }
             if (this.document.getElementById("main_container").style.display == "none") return;
-            this.console.log(event.keyCode);
             switch (event.keyCode) {
                 case 13, 90:
                     OnButtonRenew();
@@ -182,8 +125,6 @@
             document.getElementById("numbertext").innerHTML = text;
         }
 
-
-
         function selectNumber() {
             if (bRandom) {
                 number = "";
@@ -199,20 +140,16 @@
             } else {
                 number =parseInt(number);
                 var count = numberText.lastIndexOf("?");
-                console.log(number);
                 number = number + Math.pow(10, 0);//numberText.length - count - 1);
-                console.log(number);
                 //collect number
-                console.log(numberText.length ,(toString(number)).length)
                 if (numberText.length < Math.log10(number)) {
                     number = numberText.replace(/\?/g, "0");
                 }
             }
-            console.log(number);
             number = parseInt(number);
             var size = Math.floor(100 / numberText.length)
-            size = size > 50 ? 50 : size;
-            document.getElementById("numbertext").style.fontSize = size + "vh";
+            size = size > 25 ? 25 : size;
+            document.getElementById("numbertext").style.fontSize = size + "vw";
 
         }
 
@@ -226,14 +163,7 @@
         function OnSpeach() {
             var text = "";
             text=String(number)
-            var msg = new SpeechSynthesisUtterance(text);
-            msg.voice = speechSynthesis
-                .getVoices()
-                .filter(voice => voice.name === voiceSelect.value)[0]
-            msg.rate = document.getElementById("SpeedValue").value;
-            msg.pitch = document.getElementById("PitchValue").value;
-            msg.volume = document.getElementById("VolumeValue").value;
-            window.speechSynthesis.speak(msg);
+            tts.speech(text);
         }
 
         ///////////////////////////////////////////////////////////////////////////
@@ -245,14 +175,12 @@
                 document.getElementById("setting_container").style.display = "block";
                 document.getElementById("main_container").style.display = "none";
                 document.getElementById("control_container").style.display = "none";
-
             } else {
                 document.getElementById("button_setting").innerText = "\u2699"
                 document.getElementById("setting_container").style.display = "none";
 
                 document.getElementById("main_container").style.display = "block";
                 document.getElementById("control_container").style.display = "block";
-
             }
         }
 

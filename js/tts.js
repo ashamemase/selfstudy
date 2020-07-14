@@ -23,12 +23,17 @@ class TTS{
     pitch;
     volume;
     voice;
-    voicename;
     onvoicechanged;//音声が遅延で追加されるブラウザ用です。このクラスがイベントを処理してしまうので、追加の処理がある場合に使ってください。
     _ready;
     _fromlocalstorage=false;
     _key="TTS_DATA";
-
+    _voicename;
+    set voicename(name){
+        this.setVoiceByName(name);
+    }
+    get voicename(){
+        return this._voicename;
+    }
     constructor(){
         this.speed=1.0;
         this.pitch=1.0;
@@ -49,10 +54,11 @@ class TTS{
     }
     //音声名からTTSを設定します。返り値は成否です。
     setVoiceByName(name){
+        if(this._voicename==name) return this._ready;
         this._ready=false;
         this.voice=null;
-        this.voicename=name;
-        this.voice=_getVoiceFromName(this.voicename);
+        this._voicename=name;
+        this.voice=this._getVoiceFromName(this.voicename);
         if(this.voice!=null) this._ready=true;
         return this._ready;
     }
@@ -72,7 +78,7 @@ class TTS{
         voices.forEach(v=>{
             if(!v.lang.match('ja')) return;
             this.voice=v;
-            this.voicename=v.name;
+            this._voicename=v.name;
         });
         if(this.voice!=null)this._ready=true;
     }
@@ -84,7 +90,7 @@ class TTS{
             this.speed=json["speed"];
             this.pitch=json["pitch"];
             this.volume=json["volume"];
-            this.voicename=json["voice"];
+            this._voicename=json["voice"];
             this.voice=this._getVoiceFromName(this.voicename);
         }catch(e){
             return;
