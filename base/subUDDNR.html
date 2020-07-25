@@ -13,9 +13,179 @@
 .myFontClass {
   font-family: "myFont";
 }
-</style>
+#button_line{
+    text-align:center;
+}
+#text{
+    font-size:20vw;
+    text-align:center;
+}
+button{
+    height:10vh;
+    font-size:8vh;
+}
+body{
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+}
+#main_container{
+    display:block;
+    flex:0 1 70%;
+}
+#setting_container{
+    display:none;
+    flex:0 1 10%;
 
+}
+    #setting_container * {
+        width: 50vh;
+        height: 8vh;
+        font-size: 4vh;
+    }
+#control_container{
+    flex:0 1 10%;
+}
+#button_setting{
+    display:block;
+    margin:0 0 0 auto;
+    
+}
+</style>
 <body>
-<p>サンプル文字列は「<span class="myFontClass">あいうえおきさすりや</span>」です。</p>
+  <div id="menu_container">
+      <button id="button_setting" onclick="OnButtonSetting()">&#x2699</button>
+  </div>
+  <div id="main_container">
+      <span id="text" class="myFontClass">あ</span>
+  </div>
+  <div id="control_container">
+      <div id="button_line">
+          <button id="buttou_renew" onclick="OnButtonRenew()">&#x21AA</button>
+          <button id="button_speach" onclick="OnSpeach()">&#x1F508</button>
+      </div>
+  </div>  
+  <div id="setting_container">
+    <select id="startpos"></select><span>～</span><select id="endpos"></select>
+    <select id="mode"><option value=1 selected>ひらがな</option><option value=2>カタカナ</option><option value=3>両方</option></select>
+    <input type="checkbox" id="specialKatakana"><span>特殊カタカナ</span>
+
+  </div>
+<script src="../js/tts.js"></script>
+<script>
+  var tts=new TTS();
+  var text;
+  var start;
+  var end;
+  var mode;
+
+  var hiraganaTable =[
+    "あ","い","う","え","お","か","き","く","け","こ","さ","し","す","せ","そ","た","ち","つ","て","と","な","に","ぬ","ね","の",
+    "は","ひ","ふ","へ","ほ","ま","み","む","め","も","や","ゆ","よ","ら","り","る","れ","ろ","わ","を","ん","が","ぎ","ぐ","げ",
+    "ご","ざ","じ","ず","ぜ","ぞ","だ","ぢ","づ","で","ど","ば","び","ぶ","べ","ぼ","ぱ","ぴ","ぷ","ぺ","ぽ","きゃ","きゅ","きょ","しゃ",
+    "しゅ","しょ","ちゃ","ちゅ","ちょ","にゃ","にゅ","にょ","ひゃ","ひゅ","ひょ","みゃ","みゅ","みょ","りゃ","りゅ","りょ","ぎゃ","ぎゅ","ぎょ","じゃ","じゅ","じょ","びゃ","びゅ",
+    "びょ","ぴゃ","ぴゅ","ぴょ","","","","","","","","","","","","","","","","","","",
+  ]
+  var katakanaTable =[
+    "ア","イ","ウ","エ","オ","カ","キ","ク","ケ","コ","サ","シ","ス","セ","ソ","タ","チ","ツ","テ","ト","ナ","ニ","ヌ","ネ","ノ",
+    "ハ","ヒ","フ","ヘ","ホ","マ","ミ","ム","メ","モ","ヤ","ユ","ヨ","ラ","リ","ル","レ","ロ","ワ","ヲ","ン","ガ","ギ","グ","ゲ",
+    "ゴ","ザ","ジ","ズ","ゼ","ゾ","ダ","ヂ","ヅ","デ","ド","バ","ビ","ブ","ベ","ボ","パ","ピ","プ","ペ","ポ","キャ","キュ","キョ","シャ",
+    "シュ","ショ","チャ","チュ","チョ","ニャ","ニュ","ニョ","ヒャ","ヒュ","ヒョ","ミャ","ミュ","ミョ","リャ","リュ","リョ","ギャ","ギュ","ギョ","ジャ","ジュ","ジョ","ビャ","ビュ",
+    "ビョ","ピャ","ピュ","ピョ","シェ","チェ","ツァ","ツェ","ツォ","ティ","ファ","フィ","フェ","フォ","ジェ","ディ","デュ","イェ","ウィ","ウェ","ウォ","クァ","クィ","クェ","クォ",
+    "ツィ","トゥ","グァ","ドゥ","ヴァ","ヴィ","ヴ","ヴェ","ヴォ","テュ","フュ","ヴュ","","","","","","","","","","",
+  ]
+  var hepbornTable=[
+    "a","i","u","e","o","ka","ki","ku","ke","ko","sa","shi","su","se","so","ta","chi","tsu","te","to","na","ni","nu","ne","no",
+    "ha","hi","fu","he","ho","ma","mi","mu","me","mo","ya","yu","yo","ra","ri","ru","re","ro","wa","o","n","ga","gi","gu","ge",
+    "go","za","ji","zu","ze","zo","da","ji","zu","de","do","ba","bi","bu","be","bo","pa","pi","pu","pe","po","kya","kyu","kyo","sha",
+    "shu","sho","cha","chu","cho","nya","nyu","nyo","hya","hyu","hyo","mya","myu","myo","rya","ryu","ryo","gya","gyu","gyo","ja","ju","jo","bya","byu",
+    "byo","pya","pyu","pyo","she","che","tsa","tse","tso","thi","fa","fi","fe","fo","je","di","dyu","ye","wi","we","wo","qa","qi","qe","qo",
+    "tsi","tu","gwa","dwu","va","vi","vu","ve","vo","tyu","fyu","vyu","","","","","","","","","","","","","",
+  ];
+  var startTable={"あ":0,"か":5,"さ":10,"た":15,"な":20,"は":25,"ま":30,"や":35,"ら":38,"わ":43,"が":46,
+  "ざ":51,"だ":56,"ば":61,"ぱ":66,"きゃ":71,"しゃ":74,"ちゃ":77,"にゃ":80,"ひゃ":83,"みゃ":86,"りゃ":89,"ぎゃ":92,"じゃ":95,"びゃ":98,"ぴゃ":101
+  }
+  var endTable={"お":4,"こ":9,"そ":14,"と":19,"の":24,"ほ":29,"も":34,"よ":37,"ろ":42,"ん":45,"ご":50,
+  "ぞ":55,"ど":60,"ぼ":65,"ぽ":70,"きょ":73,"しょ":76,"ちょ":79,"にょ":82,"ひょ":85,"みょ":88,
+  "りょ":91,"ぎょ":94,"じょ":97,"びょ":100,"ぴょ":103}
+  var simlerTable=["あおめぬ","いり","さきち","こに","くしつ","はほ","われね","ろる","クケタ","ナチテ",
+  "ヌスマム","ソンツシ","ユコヨ","ウワフラヲ","カヤセ"];
+  var simlerTableMix=[
+    "あおめぬ","いり","さきち","こに二","うくしつウワフラヲレ","はほ","われね","ろる","クケタ","ナチテ",
+    "ヌスマム","ソンツシ","ユコヨ","カヤセ"];
+
+    window.addEventListener("load",function(){
+        AddSelect();
+    })
+    function AddSelect() {
+            let obj=document.getElementById("startpos");
+ 			var value=obj.getAttribute("data-value");
+        	var index=0;
+            for (let key in startTable) {
+                var option = document.createElement("option");
+                option.text = key;
+                option.value = startTable[key];
+                obj.appendChild(option);
+                if(value==startTable[key] && value!=""){
+                	obj.selectedIndex = index;
+                	obj.value=value;
+                }                
+                index++;
+            }
+            obj=document.getElementById("endpos");
+ 			value=obj.getAttribute("data-value");
+        	index=0;
+            for (let key in endTable) {
+                var option = document.createElement("option");
+                option.text = key;
+                option.value = endTable[key];
+                obj.appendChild(option);
+                if(value==endTable[key] && value!=""){
+                	obj.selectedIndex = index;
+                	obj.value=value;
+                }                
+                index++;
+            }
+        }
+        function OnButtonRenew() {
+            let index=Math.floor(Math.random()*(end-start)+start);
+            index=index<0?0:index;//0-32 special
+            let hiragana=true;
+            if(mode==3)hiragana=Math.random*2>1?true:false;
+            if(mode==2)hiragana=false;
+            if(hiragana) text=hiraganaTable[index];else text=katakanaTable[index];
+            document.getElementById("text").innerHTML=text;
+
+        }
+
+        function OnSpeach() {
+            tts.speech(text);
+        }
+
+            ///////////////////////////////////////////////////////////////////////////
+    //
+    //              setting section
+    function OnButtonSetting() {
+        if (document.getElementById("button_setting").innerText == "\u2699") {
+            document.getElementById("button_setting").innerText = "\u21B2";
+            document.getElementById("setting_container").style.display = "block";
+            document.getElementById("main_container").style.display = "none";
+            document.getElementById("control_container").style.display = "none";
+
+        } else {
+            document.getElementById("button_setting").innerText = "\u2699"
+            document.getElementById("setting_container").style.display = "none";
+            document.getElementById("main_container").style.display = "block";
+            document.getElementById("control_container").style.display = "block";
+            let opt = document.getElementById("startpos");
+            start=opt.options[opt.selectedIndex].value;
+            opt = document.getElementById("endpos");
+            end=opt.options[opt.selectedIndex].value;
+            opt=document.getElementById("mode");
+            mode=opt.options[opt.selectedIndex].value;
+        }
+    }
+
+</script>
 </body>
 </html>
