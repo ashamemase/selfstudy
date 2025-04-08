@@ -17,7 +17,7 @@ if($_SESSION["SCHOOLID"]=="" && $_SESSION["LEVEL"] == "X"){
 
 $db['host'] = "localhost";  // DBサーバのURL
 $db['user'] = "studyjapanese";  // ユーザー名
-$db['pass'] = "m1234567890";  // ユーザー名のパスワード
+$db['pass'] = "m42974298";  // ユーザー名のパスワード
 $db['dbname'] = "login_management";  // データベース名
 $db['studydbname'] = "selfstudy"; //学習用データベース名
 // エラーメッセージの初期化

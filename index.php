@@ -44,6 +44,7 @@ if (!isset($_SESSION["NAME"])) {
         ?>
         <li><a href="logout.php">ログアウト</a></li>
     </ul>
+
     <script type="text/javascript">
         function loadloader() {
             document.getElementById("loaderbody").style.display = "flex";

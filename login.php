@@ -4,8 +4,8 @@
 session_start();
 
 $db['host'] = "localhost";  // DBサーバのURL
-$db['user'] = "studyjapanese";  // ユーザー名
-$db['pass'] = "m1234567890";  // ユーザー名のパスワード
+$db['user'] = "root";  // ユーザー名
+$db['pass'] = "m42974298";  // ユーザー名のパスワード
 $db['dbname'] = "login_management";  // データベース名
 
 // エラーメッセージの初期化
@@ -85,9 +85,7 @@ if (isset($_POST["login"])) {
             }
         } catch (PDOException $e) {
             $errorMessage = 'データベースエラー';
-            //$errorMessage = $sql;
-            // $e->getMessage() でエラー内容を参照可能（デバッグ時のみ表示）
-            // echo $e->getMessage();
+
         }
     }
 }
@@ -165,7 +163,7 @@ if (isset($_POST["login"])) {
             document.getElementById("loader").style.zindex = 21474836479;
         }
     </script>
-
+    <?php phpinfo()?>
 </body>
 
 </html>
